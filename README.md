@@ -297,5 +297,5 @@ in "".**
 [问题解决参考](https://www.cnblogs.com/BlogOfMr-Leo/p/8552385.html)  
 后来又出现了上面说了的sip问题。  
 大功告成！就是太丑了T T，有时间去学学界面如何美化。
-![这里写图片描述](https://img-blog.csdn.net/20180830230221166?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTM1OTc5MzE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
-![这里写图片描述](https://img-blog.csdn.net/20180830230241296?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTM1OTc5MzE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+![这里写图片描述](https://github.com/htshinichi/DTGUI/blob/master/HuaHuaDT.jpg)
+![这里写图片描述](https://github.com/htshinichi/DTGUI/blob/master/HuaHuaDT2.jpg)
