@@ -21,6 +21,7 @@ class Mywin(wx.Frame):
         font_text = wx.Font(15,wx.ROMAN,wx.NORMAL,wx.NORMAL)
         font_hint1 = wx.Font(10,wx.ROMAN,wx.NORMAL,wx.NORMAL)
         font_hint2 = wx.Font(15,wx.ROMAN,wx.NORMAL,wx.NORMAL)
+        
         ####固定文本设置####      
         self.title = wx.StaticText(panel,-1,"决策树",pos=(650,0),size=(80,30),style=wx.ALIGN_RIGHT)#pos用于设置位置、size用于设置大小
         self.title.SetForegroundColour((255,0,255))#设置文本颜色
@@ -33,6 +34,9 @@ class Mywin(wx.Frame):
       
         self.lbl1 = wx.StaticText(panel,-1,"选择划分算法进行训练",pos=(50,50),style=wx.ALIGN_LEFT)#pos用于设置位置、size用于设置大小      
         self.lbl1.SetFont(font_text)
+        
+        self.lbl2 = wx.StaticText(panel,-1,"当前模型：",pos=(600,80),style=wx.ALIGN_LEFT)#pos用于设置位置、size用于设置大小      
+        self.lbl2.SetFont(font_hint1)
 
         self.hint1 = wx.StaticText(panel,-1,"",pos=(410,50),style=wx.ALIGN_LEFT)
         self.hint1.SetFont(font_hint1)
@@ -56,10 +60,6 @@ class Mywin(wx.Frame):
         self.btn.Bind(wx.EVT_BUTTON,self.LoadData)
         self.btn.SetFont(font_btn)
         
-        self.choice = wx.Choice(panel,choices = ['ID3','C4.5'],pos=(260,50),size=(50,30))
-        self.choice.Bind(wx.EVT_CHOICE,self.SelectSplit)
-        
-     
         self.btn = wx.Button(panel,-1,"Train",pos=(330,45),size=(50,30)) 
         self.btn.Bind(wx.EVT_BUTTON,self.Train)
         self.btn.SetFont(font_btn)  
@@ -70,8 +70,12 @@ class Mywin(wx.Frame):
         
         self.btn = wx.Button(panel,-1,"Predict",pos=(420,480),size=(80,50)) 
         self.btn.Bind(wx.EVT_BUTTON,self.GetPrediction)
-        self.btn.SetFont(font_btn)
+        self.btn.SetFont(font_btn)  
         
+        ####下拉栏设置####
+        self.choice = wx.Choice(panel,choices = ['ID3','C4.5'],pos=(260,50),size=(50,30))
+        self.choice.Bind(wx.EVT_CHOICE,self.SelectSplit)
+                     
         ####图片设置####
         DTimage = wx.Image('chushi.jpg',wx.BITMAP_TYPE_JPEG).Rescale(720, 360).ConvertToBitmap() 
         self.bmp = wx.StaticBitmap(panel, -1, DTimage,pos=(30,100)) #转化为wx.StaticBitmap()形式
@@ -109,6 +113,10 @@ class Mywin(wx.Frame):
                 print("未获取文件路径")
                 self.hint1.SetLabel("请选择或输入文件路径！")
                 self.hint1.SetForegroundColour((255,0,0))
+            except OSError:
+                print("存在中文路径")
+                self.hint1.SetLabel("存在中文路径！")
+                self.hint1.SetForegroundColour((255,0,0))
         else:
             print("请重新导入")
             self.hint1.SetLabel("数据导入失败，请重新导入!")
@@ -116,20 +124,19 @@ class Mywin(wx.Frame):
             
     ####6选择划分算法事件响应####
     def SelectSplit(self, event):
-        name = event.GetString()
+        self.name = event.GetString()
         #btn = event.GetEventObject().GetLabel()
-        if name == 'ID3':
-            print("选择划分算法：",name)
+        if self.name == 'ID3':
+            print("选择划分算法：",self.name)
             self.hint1.SetLabel("选择了ID3算法")
             self.hint1.SetForegroundColour((0,255,0))
             self.DT_model = DecisionTREE.DecisionTree(split='ID3')
-
             
-        if name == 'C4.5':
-            print("选择划分算法：",name)
+        if self.name == 'C4.5':
+            print("选择划分算法：",self.name)
             self.hint1.SetLabel("选择了C4.5算法")
             self.hint1.SetForegroundColour((0,255,0))
-            self.DT_model = DecisionTREE.DecisionTree(split='C45')              
+            self.DT_model = DecisionTREE.DecisionTree(split='C45')            
             
     ####7训练事件响应####
     def Train(self,event):
@@ -139,6 +146,13 @@ class Mywin(wx.Frame):
             self.data_model = self.DT_model.create_tree(self.data,self.data_feature)
             self.hint1.SetLabel("训练成功")
             self.hint1.SetForegroundColour((0,255,0))
+            if(self.name == 'ID3'):
+                self.lbl2.SetLabel("当前模型：ID3")
+                self.AlgName = 'ID3'
+            elif(self.name == 'C4.5'):
+                self.lbl2.SetLabel("当前模型：C4.5")
+                self.AlgName = 'C4.5'
+            
         except AssertionError as bb:
             print(bb)
             print("请重新导入数据")
@@ -147,28 +161,40 @@ class Mywin(wx.Frame):
         except AttributeError as aa:
             print(aa)
             print("未导入数据或未选择算法")
-            self.hint1.SetLabel("未导入数据或未选择算法，请导入数据或选择算法!")
+            self.hint1.SetLabel("未导入数据或未选择算法!")
             self.hint1.SetForegroundColour((255,0,0))            
             
     ####8获取测试样本事件响应####                   
     def GetSamplVector(self,event):
         sampletext = event.GetString()
         self.SamplVector = re.split(r':| ',sampletext)
-        print(self.SamplVector) 
+        #print(self.SamplVector) 
 
     ####9预测事件响应####
     def GetPrediction(self,event):
         try:
             result = self.DT_model.classify(self.data_model,self.featabel,self.SamplVector)
-            self.hint2.SetLabel("预测结果："+result)
+            print(str(self.AlgName))
+            self.hint2.SetLabel(self.AlgName+"预测结果："+result)
             self.hint2.SetForegroundColour((255,0,255))
-        except AttributeError:
-            print("未导入数据或未选择算法")
-            self.hint1.SetLabel("未导入数据或未选择算法，请导入数据或选择算法!")
+        except AttributeError as error:
+            print(error)
+            print("未导入数据训练模型或未导入样本")
+            self.hint1.SetLabel("未导入数据训练模型或未导入样本")
             self.hint1.SetForegroundColour((255,0,0))
         except TypeError as error:
             print(error)
-            print("输入的样本数据有误") 
+            print("输入的样本数据有误")
+            self.hint2.SetLabel("输入的样本数据有误")
+            self.hint2.SetForegroundColour((255,0,0))
+        except IndexError:
+            print("输入的样本数据有误")
+            self.hint2.SetLabel("输入的样本数据有误")
+            self.hint2.SetForegroundColour((255,0,0))
+        except UnboundLocalError:
+            print("无法判断")
+            self.hint2.SetLabel("无法判断")
+            self.hint2.SetForegroundColour((255,0,0))
             
     ####10绘制决策树事件响应####
     def Plot(self,event):
@@ -185,6 +211,10 @@ class Mywin(wx.Frame):
             print("模型不存在，请先训练模型")
             self.hint1.SetLabel("模型不存在，请先训练模型")
             self.hint1.SetForegroundColour((255,0,0))
+            
+    
+
+
       
 if __name__ == '__main__':
     try:
